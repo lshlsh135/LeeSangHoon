@@ -29,6 +29,7 @@ col_length = len(rebalancing_date)-1 #rebalancing_date의 길이는 66이다. ra
 
 return_data = pd.DataFrame(np.zeros((1,col_length)))
 return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
+quarter_data = pd.DataFrame(np.zeros((1,3*col_length)))
 return_final = pd.DataFrame(np.zeros((1,1)))
 
 for n in range(col_length): 
@@ -1708,6 +1709,25 @@ for n in range(col_length):
     result = result.drop_duplicates(subset='CO_NM', keep='last')
     result = result[result['rnk']<50]
     
+    sum_data = pd.merge(target_data,result,on='GICODE') # 3개월치 수익률을 구하기 위해 3개월 후 존재하는 data에 현재 data를 붙임
+    sum_data['3M_RETURN'] = sum_data['ADJ_PRC_x']/sum_data['ADJ_PRC_y'] # 3개월동안의 종목 수익률
+    
+    #월별 수익률을 구해보
+    first_data = first_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
+    for i in range(past_month+1,cur_month): # 3개월치의 월별 수익률을 구하기 위해선 4개의 price 데이터가 필요한데 2개밖에 없으니 2개를 더 받아온다.
+        second_data = raw_data[raw_data['TRD_DATE']==month_date.iloc[i,0]]  #월별 데이터를 받아와서
+        second_data = second_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]   # 간단하게 만든다음
+        first_data = pd.merge(first_data,second_data,on='GICODE')   # first_data와 합친다
+    
+    first_data['1ST_RETURN'] =  first_data['ADJ_PRC_y']/ first_data['ADJ_PRC_x']   #0->1 , 즉 첫 한개월간의 수익률
+    first_data['2ND_RETURN'] =  first_data['ADJ_PRC']/ first_data['ADJ_PRC_y']# 1->2 한달이후 한달간 수익률
+    first_data = first_data.loc[:,['GICODE','1ST_RETURN','2ND_RETURN']] #데이터를 간단하게 만들어준다음
+    sum_data = pd.merge(sum_data,first_data,on='GICODE') # 기존 data와 합친다.
+    sum_data['2M_CUM_RETURN'] = sum_data['1ST_RETURN'] * sum_data['2ND_RETURN'] 
+    
+   
+    
+    quarter_data[[3*n,3*n+1,3*n+2]] = result.iloc[:,[0,1,7]].reset_index(drop=True)
     
     
     

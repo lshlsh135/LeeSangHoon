@@ -1687,8 +1687,26 @@ for n in range(col_length):
    
     
     result = result_1
+    result=result.assign(rnk=result['z_score'].rank(method='first',ascending=False)) 
     
+    samsung['1/pbr'] = 0
+    samsung['1/per'] = 0
+    samsung['div_yield'] = 0
+    samsung['pbr_z'] = 0
+    samsung['per_z'] = 0
+    samsung['div_z'] = 0
+    samsung['z_score'] = 0
+    samsung['rnk'] = 0
     
+    result = pd.concat([result,samsung])
+    #이게 위에 있었떠니 삼성전자 두번 들어가는것도... 으..
+    #drop_duplicate()에서 subset='name'을 넣으면 name이 같은것들은 사라짐
+    #여기서 default 값은 처음 하나는 살아남는다는것
+    #삼성에서 이상한값에 다 0 을 넣어서 원래 값과 달랐기 때문에 subset 이없으면
+    #제거가 안됬다.
+    #keep='last'로 해야 rnk = 0인게 살아남음.....
+    result = result.drop_duplicates(subset='CO_NM', keep='last')
+    result = result[result['rnk']<50]
     
     
     

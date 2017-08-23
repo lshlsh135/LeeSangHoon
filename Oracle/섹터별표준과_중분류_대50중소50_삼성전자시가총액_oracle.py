@@ -52,7 +52,9 @@ for n in range(col_length):
     target_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n+1,0]] # 다음 리밸런싱 날짜.
     target_data = target_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
     # CAP_SIZE : 1코스피대2코스피중3코스피소4코스닥대5코스닥중6코스닥소
-    first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['CAP_SIZE']==4)|(first_data['CAP_SIZE']==5)|(first_data['CAP_SIZE']==6)]
+    # 코스닥은 문제가 발생 4 5 6 은 2002년도에 kosdaq big mid small지수가 상장되었기 때문에 그 이전 데이타는 0이라고 나옴
+    # 따라서 iskosdaq라는 새로운 column을 추가했음.
+    first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['ISKOSDAQ']=='KOSDAQ')]
     first_data = first_data[first_data['MARKET_CAP']>100000000000]
     first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
     

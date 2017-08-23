@@ -52,7 +52,7 @@ for n in range(col_length):
     target_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n+1,0]] # 다음 리밸런싱 날짜.
     target_data = target_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
     # CAP_SIZE : 1코스피대2코스피중3코스피소4코스닥대5코스닥중6코스닥소
-    first_data = first_data[(first_data['CAP_SIZE']==1)]
+    first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['CAP_SIZE']==4)|(first_data['CAP_SIZE']==5)|(first_data['CAP_SIZE']==6)]
     first_data = first_data[first_data['MARKET_CAP']>100000000000]
     first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
     
@@ -1743,11 +1743,11 @@ for n in range(col_length):
     samsung_weight=samsung_weight[samsung_weight['3M_RETURN']!=0]
     samsung_weight=samsung_weight[samsung_weight.notnull()]
     
-    samsung_weight = samsung_weight[samsung_weight['CO_NM']=='삼성전자']['MARKET_CAP'] / np.sum(samsung_weight['MARKET_CAP']) # 삼성전자 시가총액 비중
+    samsung_weight = samsung_weight[samsung_weight['CO_NM']=='삼성전자']['MARKET_CAP'].reset_index(drop=True) / np.sum(samsung_weight['MARKET_CAP']) # 삼성전자 시가총액 비중
     rest_weight = 1 - samsung_weight # 나머지 종목들의 시총비중
 
     #삼성전자를 시가총액 비중으로 투자, 나머지는 동일가중 투자    
-    
+    return_data.iloc[0,n]=np.sum(result[result['CO_NM']!='삼성전자']['3M_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['3M_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0] # 390이 삼성전자 index
     
     
     

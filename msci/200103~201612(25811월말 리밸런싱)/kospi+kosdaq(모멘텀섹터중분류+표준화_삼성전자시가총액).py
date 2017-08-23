@@ -1845,8 +1845,8 @@ for n in range(3,68):
 #    result = result[result[15]!=0]
     #매 분기 수익률을 기록
     quarter_data[[3*(n-3),3*(n-3)+1,3*(n-3)+2]] = result.iloc[:,[0,1,7]].reset_index(drop=True)
-    market_cap교육서비스al=np.sum(result['size_FIF_wisefn'])
-    result=result.assign(market_weight2=result['size_FIF_wisefn']/market_cap교육서비스al)          
+    market_capital=np.sum(result['size_FIF_wisefn'])
+    result=result.assign(market_weight2=result['size_FIF_wisefn']/market_capital)          
     
     #연말현금배당수익률 저장
     if (n>4)&((n-4)%4==2):
@@ -1854,6 +1854,7 @@ for n in range(3,68):
         result_cash_temp=result_cash_temp[result_cash_temp['name'].notnull()]
         result_cash[[z,z+1]] = result_cash_temp.iloc[:,[0,1]].reset_index(drop=True)
         z=z+2
+        
     data_big = raw_data_sum[(raw_data_sum[n] == 2)|(raw_data_sum[n] == 3)|(raw_data_sum[n] == 1)]
     data_big = data_big.loc[:,[1,n]]
     samsung_weight = pd.concat([data_big, size_FIF_wisefn_sum[n], equity_sum[n], ni_12m_fw_sum[n],cash_div_sum[n],size_sum[n],rtn_sum[n-3],sector_sum[n],rtn_month_sum[3*(n-3)],rtn_month_sum[3*(n-3)+1],rtn_month_sum[3*(n-3)+2]],axis=1,join='inner',ignore_index=True)

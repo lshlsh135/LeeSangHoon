@@ -29,7 +29,7 @@ col_length = len(rebalancing_date)-1 #rebalancing_date의 길이는 66이다. ra
 
 return_data = pd.DataFrame(np.zeros((1,col_length)))
 return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
-quarter_data = pd.DataFrame(np.zeros((1,3*col_length)))
+quarter_data = pd.DataFrame(np.zeros((200,3*col_length)))
 return_final = pd.DataFrame(np.zeros((1,1)))
 
 for n in range(col_length): 
@@ -51,6 +51,7 @@ for n in range(col_length):
     first_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n,0]] # rebalanging할 날짜에 들어있는 모든 db data를 받아온다.
     target_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n+1,0]] # 다음 리밸런싱 날짜.
     target_data = target_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
+    # CAP_SIZE : 1코스피대2코스피중3코스피소4코스닥대5코스닥중6코스닥소
     first_data = first_data[(first_data['CAP_SIZE']==1)]
     first_data = first_data[first_data['MARKET_CAP']>100000000000]
     first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
@@ -1712,8 +1713,12 @@ for n in range(col_length):
     sum_data = pd.merge(target_data,result,on='GICODE') # 3개월치 수익률을 구하기 위해 3개월 후 존재하는 data에 현재 data를 붙임
     sum_data['3M_RETURN'] = sum_data['ADJ_PRC_x']/sum_data['ADJ_PRC_y'] # 3개월동안의 종목 수익률
     
-    #월별 수익률을 구해보
-    first_data = first_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
+    #월별 수익률을 구해보자
+    #월별 수익률을 구하기 위해 month_date 에서 필요한 날짜가 몇번쨰 row에 있는지 확인
+    past_month=month_date.loc[month_date['MONTH_DATE']==rebalancing_date.iloc[n,0]].index[0]
+    cur_month=month_date.loc[month_date['MONTH_DATE']==rebalancing_date.iloc[n+1,0]].index[0]
+    
+    first_data = result.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
     for i in range(past_month+1,cur_month): # 3개월치의 월별 수익률을 구하기 위해선 4개의 price 데이터가 필요한데 2개밖에 없으니 2개를 더 받아온다.
         second_data = raw_data[raw_data['TRD_DATE']==month_date.iloc[i,0]]  #월별 데이터를 받아와서
         second_data = second_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]   # 간단하게 만든다음
@@ -1725,16 +1730,23 @@ for n in range(col_length):
     sum_data = pd.merge(sum_data,first_data,on='GICODE') # 기존 data와 합친다.
     sum_data['2M_CUM_RETURN'] = sum_data['1ST_RETURN'] * sum_data['2ND_RETURN'] 
     
-   
+    result = sum_data # 기존 코드를 RESULT로 만들어놔서..
+        
+    quarter_data[[3*n,3*n+1,3*n+2]] = result.loc[:,['CO_NM','CAP_SIZE','3M_RETURN']].reset_index(drop=True) #매 분기마다 종목명, 시가총액나눔, 3개월 수익률 저장
+    market_capital=np.sum(result['size_FIF_wisefn']) # 전체 시가총액 -> 삼성전자 시총 비중을 구하기 위해
+    result=result.assign(market_weight2=result['size_FIF_wisefn']/market_capital)          
     
-    quarter_data[[3*n,3*n+1,3*n+2]] = result.iloc[:,[0,1,7]].reset_index(drop=True)
+    first_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n,0]]
+    samsung_weight = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)]
+    samsung_weight = pd.merge(target_data,samsung_weight,on='GICODE') # 3개월치 수익률을 구하기 위해 3개월 후 존재하는 data에 현재 data를 붙임
+    samsung_weight['3M_RETURN'] = samsung_weight['ADJ_PRC_x']/samsung_weight['ADJ_PRC_y'] # 3개월동안의 종목 수익률
+    samsung_weight=samsung_weight[samsung_weight['3M_RETURN']!=0]
+    samsung_weight=samsung_weight[samsung_weight.notnull()]
     
-    
-    
-    
-    
-    
-    
+    samsung_weight = samsung_weight[samsung_weight['CO_NM']=='삼성전자']['MARKET_CAP'] / np.sum(samsung_weight['MARKET_CAP']) # 삼성전자 시가총액 비중
+    rest_weight = 1 - samsung_weight # 나머지 종목들의 시총비중
+
+    #삼성전자를 시가총액 비중으로 투자, 나머지는 동일가중 투자    
     
     
     

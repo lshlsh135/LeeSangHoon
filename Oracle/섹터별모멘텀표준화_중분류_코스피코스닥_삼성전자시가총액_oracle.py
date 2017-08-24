@@ -57,7 +57,7 @@ for n in range(col_length):
     # 따라서 iskosdaq라는 새로운 column을 추가했음.
     # 기존에 했던 backtesting도 틀렸었음.. 물론 2002년 이전 구간만. 그 이후에는 같을것으로 예상
     first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['ISKOSDAQ']=='KOSDAQ')]
-    first_data = first_data[first_data['MARKET_CAP']>100000000000]
+#    first_data = first_data[first_data['MARKET_CAP']>100000000000]
     first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
     
     samsung = first_data[first_data['CO_NM']=='삼성전자']
@@ -1712,7 +1712,7 @@ for n in range(col_length):
     #제거가 안됬다.
     #keep='last'로 해야 rnk = 0인게 살아남음.....
     result = result.drop_duplicates(subset='CO_NM', keep='last')
-    result = result[result['rnk']<50]
+    result = result[result['rnk']<25]
     
     sum_data = pd.merge(target_data,result,on='GICODE') # 3개월치 수익률을 구하기 위해 3개월 후 존재하는 data에 현재 data를 붙임
     sum_data['3M_RETURN'] = sum_data['ADJ_PRC_x']/sum_data['ADJ_PRC_y'] # 3개월동안의 종목 수익률
@@ -1760,10 +1760,39 @@ for n in range(col_length):
     #매 분기 종목 이름 저장
     data_name[n]=result['CO_NM'].reset_index(drop=True)
     
+#turnover 계산    
+for n in range(col_length-1):
     
+    len1 = len(data_name[data_name[n+1].notnull()])
+    aaa=data_name.loc[:,[n,n+1]]
+    bbb=pd.DataFrame(aaa.stack().value_counts())
+    len2=len(bbb[bbb[0]==2])
+    data_name.loc[999,n+1]=(len1-len2)/len1
+    turnover_quarter=data_name.loc[999,1:]
+    turnover=np.mean(turnover_quarter)
+   
+#turnvoer에 1.5% 곱해서 거래비용 계산하기
+#첫기에는 거래비용이 100%이다
+turnover_temp = pd.DataFrame(np.ones((1,1)))
+turnover_quarter = pd.DataFrame(turnover_quarter).transpose().reset_index(drop=True)
+turnover_quarter = pd.concat([turnover_temp,turnover_quarter],axis=1)
+turnover_quarter = turnover_quarter * 0.01
+return_diff = return_data - turnover_quarter
+return_transaction_cost_final=np.product(return_diff,axis=1)    
     
-    
-    
+#monthly data에도 cost 반영
+import copy   # 엠창 존나 어려운거발견함 장족의 발전이다
+#deep copy랑 swallow copy 가 있는데  a=[1,2,3]을 만들면 a에 [1,2,3]이 저장되는게 아니라
+#[1,2,3]이라는 객체가 생성되고 여기에 a 가 할당됨. 그런데 여기다 a=b 를 해버리면 b도 
+# 저 객체에 할당되어버려서, b를변경하든 a를 변경하든 같이 바뀜. 
+#deep copy를 하면 새로운 객체가 생김.
+return_month_data_costed = copy.deepcopy(return_month_data)
+
+
+# monthly data에 turnover cost를 빼는건, 종목을 변경한 달에 적용...
+for n in range(col_length):
+    return_month_data_costed[3*n] = np.subtract(return_month_data[3*n],turnover_quarter[n])
+
     
     
     

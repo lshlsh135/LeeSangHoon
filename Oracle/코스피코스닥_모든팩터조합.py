@@ -34,6 +34,7 @@ return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
 quarter_data = pd.DataFrame(np.zeros((200,3*col_length)))
 return_final = pd.DataFrame(np.zeros((1,1)))
 return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
+ir_data = pd.DataFrame(np.zeros((5,30)))
 
 first_column = len(raw_data.columns)  # 1/pbr 의 loc
 raw_data['1/pbr']=raw_data['EQUITY']/raw_data['MARKET_CAP']
@@ -43,9 +44,25 @@ raw_data['roe']=raw_data['NI']/raw_data['EQUITY']
 raw_data['roa']=raw_data['NI']/raw_data['ASSET']
 final_column = len(raw_data.columns)-1 # roa 의 loc
 
+factor_num = 1
+row_num = 0
 for i in range(first_column,final_column+1):
     a=factor_1(raw_data,rebalancing_date,month_date,i)
     locals()['aaa_{}'.format(i)] =a.per()    
+    ir_data.iloc[row_num,factor_num] = (2*(np.mean(locals()['aaa_{}'.format(i)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}'.format(i)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
+    
+    row_num += 1
+
+
+a=[3,4]
+len(a)
+a.extend([5])
+
+
+
+
+
+
 
 
 import itertools       

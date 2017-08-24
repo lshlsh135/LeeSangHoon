@@ -30,7 +30,7 @@ class factor_1:
         
         return_data = pd.DataFrame(np.zeros((group_goal,col_length)))
         return_final = pd.DataFrame(np.zeros((group_goal,1)))
-        return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
+        return_month_data = pd.DataFrame(np.zeros((5,3*col_length)))
         
         for n in range(col_length): 
             first_data = self.raw_data[self.raw_data['TRD_DATE']==self.rebalancing_date.iloc[n,0]] # rebalanging할 날짜에 들어있는 모든 db data를 받아온다.
@@ -74,11 +74,11 @@ class factor_1:
             for i in range(group_goal):
                 return_data.iloc[i,n] = np.mean(locals()['data_{}'.format(i)]['3M_RETURN'])
                 
-#            for i in range(group_goal):
-#                return_month_data.iloc[i,3*n]= np.mean(locals()['data_{}'.format(i)]['1ST_RETURN'])
-#                return_month_data.iloc[i,3*n+1]= np.mean(locals()['data_{}'.format(i)]['2M_CUM_RETURN']) / np.mean(locals()['data_{}'.format(i)]['1ST_RETURN'])
-#                return_month_data.iloc[i,3*n+2]= np.mean(locals()['data_{}'.format(i)]['3M_RETURN']) / np.mean(locals()['data_{}'.format(i)]['2M_CUM_RETURN'])
-#                
+            for i in range(group_goal):
+                return_month_data.iloc[i,3*n]= np.mean(locals()['data_{}'.format(i)]['1ST_RETURN'])
+                return_month_data.iloc[i,3*n+1]= np.mean(locals()['data_{}'.format(i)]['2M_CUM_RETURN']) / np.mean(locals()['data_{}'.format(i)]['1ST_RETURN'])
+                return_month_data.iloc[i,3*n+2]= np.mean(locals()['data_{}'.format(i)]['3M_RETURN']) / np.mean(locals()['data_{}'.format(i)]['2M_CUM_RETURN'])
+                
 #               
         
             return_final=np.product(return_data,axis=1)

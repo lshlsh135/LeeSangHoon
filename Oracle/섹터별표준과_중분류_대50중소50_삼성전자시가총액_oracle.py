@@ -31,7 +31,7 @@ return_data = pd.DataFrame(np.zeros((1,col_length)))
 return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
 quarter_data = pd.DataFrame(np.zeros((200,3*col_length)))
 return_final = pd.DataFrame(np.zeros((1,1)))
-
+return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
 for n in range(col_length): 
     #wics mid sector Momentum 전략을 먼저
     first_mom = wics_mid[wics_mid['TRD_DATE']==rebalancing_date.iloc[n,0]] 
@@ -54,6 +54,7 @@ for n in range(col_length):
     # CAP_SIZE : 1코스피대2코스피중3코스피소4코스닥대5코스닥중6코스닥소
     # 코스닥은 문제가 발생 4 5 6 은 2002년도에 kosdaq big mid small지수가 상장되었기 때문에 그 이전 데이타는 0이라고 나옴
     # 따라서 iskosdaq라는 새로운 column을 추가했음.
+    # 기존에 했던 backtesting도 틀렸었음.. 물론 2002년 이전 구간만. 그 이후에는 같을것으로 예상
     first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['ISKOSDAQ']=='KOSDAQ')]
     first_data = first_data[first_data['MARKET_CAP']>100000000000]
     first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
@@ -1751,6 +1752,11 @@ for n in range(col_length):
     #삼성전자를 시가총액 비중으로 투자, 나머지는 동일가중 투자    
     return_data.iloc[0,n]=np.sum(result[result['CO_NM']!='삼성전자']['3M_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['3M_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0] # 390이 삼성전자 index
     
+    #여기도 삼성전자 시가총액, 나머지 동일가중으로 바꿔줘야함
+    return_month_data[3*n] = np.sum(result[result['CO_NM']!='삼성전자']['1ST_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['1ST_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0]
+    return_month_data[3*n+1] = (np.sum(result[result['CO_NM']!='삼성전자']['2M_CUM_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['2M_CUM_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0])/return_month_data[3*n].loc[0]  
+    return_month_data[3*n+2] = (np.sum(result[result['CO_NM']!='삼성전자']['3M_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['3M_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0])/(np.sum(result[result['CO_NM']!='삼성전자']['2M_CUM_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['2M_CUM_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0])
+
     
     
     

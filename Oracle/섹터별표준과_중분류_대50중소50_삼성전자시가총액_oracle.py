@@ -28,6 +28,7 @@ raw_data = pd.concat([kospi,kosdaq],axis=0,ignore_index=True).drop_duplicates() 
 col_length = len(rebalancing_date)-1 #rebalancing_date의 길이는 66이다. range로 이렇게 하면 0부터 65까지 66개의 i 가 만들어진다. -1을 해준건 실제 수익률은 -1개가 생성되기 때문.
 
 return_data = pd.DataFrame(np.zeros((1,col_length)))
+data_name = pd.DataFrame(np.zeros((200,col_length)))
 return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
 quarter_data = pd.DataFrame(np.zeros((200,3*col_length)))
 return_final = pd.DataFrame(np.zeros((1,1)))
@@ -1756,8 +1757,8 @@ for n in range(col_length):
     return_month_data[3*n] = np.sum(result[result['CO_NM']!='삼성전자']['1ST_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['1ST_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0]
     return_month_data[3*n+1] = (np.sum(result[result['CO_NM']!='삼성전자']['2M_CUM_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['2M_CUM_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0])/return_month_data[3*n].loc[0]  
     return_month_data[3*n+2] = (np.sum(result[result['CO_NM']!='삼성전자']['3M_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['3M_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0])/(np.sum(result[result['CO_NM']!='삼성전자']['2M_CUM_RETURN']*rest_weight.iloc[0]/(len(result)-1))+(result[result['CO_NM']=='삼성전자']['2M_CUM_RETURN']*samsung_weight.loc[0]).reset_index(drop=True).loc[0])
-
-    
+    #매 분기 종목 이름 저장
+    data_name[n]=result['CO_NM'].reset_index(drop=True)
     
     
     

@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Fri Aug 25 07:34:45 2017
+
+@author: SH-NoteBook
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Thu Aug 24 15:18:59 2017
 
 @author: SH-NoteBook
@@ -8,24 +15,25 @@ Created on Thu Aug 24 15:18:59 2017
 
 import numpy as np
 import pandas as pd
-class factor_1:
+class factor_2:
  
-    def __init__(self,raw_data,rebalancing_date,month_date,col_num):
+    def __init__(self,raw_data,rebalancing_date,month_date,col_num,col_num2):
         self.raw_data = raw_data
         self.rebalancing_date = rebalancing_date
         self.month_date = month_date
         self.col_num = col_num
+        self.col_num2 = col_num2
         
-    def factor_1(self):
+    def factor_2(self):
         col_length = len(self.rebalancing_date)-1 #rebalancing_date의 길이는 66이다. range로 이렇게 하면 0부터 65까지 66개의 i 가 만들어진다. -1을 해준건 실제 수익률은 -1개가 생성되기 때문.
 
         group_goal = 5  #몇개의 그룹으로 나눌지 설정한다.
         
         for i in range(group_goal):
-            locals()['data_{}'.format(i)] = pd.DataFrame(np.zeros((200,col_length)))
+            locals()['data_{}'.format(i)] = pd.DataFrame(np.zeros((1000,col_length)))
         
         for i in range(group_goal):
-            locals()['data_name_{}'.format(i)] = pd.DataFrame(np.zeros((200,col_length)))
+            locals()['data_name_{}'.format(i)] = pd.DataFrame(np.zeros((1000,col_length)))
             
         
         return_data = pd.DataFrame(np.zeros((group_goal,col_length)))
@@ -43,13 +51,16 @@ class factor_1:
             #first_data = first_data[first_data['EQUITY'].notnull()] # 처음 받아온 전체 data 에서 equity가 없는 종목은 제외한다 -> equity가 null값이라는건 저 당시에 데이타가 존재하지 않는다는 것.
             
             first_data = first_data[first_data.iloc[:,self.col_num].notnull()] # 1/PER이 NULL인걸 제외한다. EQUITY 가 NULL인걸 미리 제거하지 않아도 여기서 제거됨.
+            first_data = first_data[first_data.iloc[:,self.col_num2].notnull()]
             data_length = len(first_data) # 몇개의 종목이 rebalanging_date때 존재했는지 본다.
             #월별 수익률을 구하기 위해 month_date 에서 필요한 날짜가 몇번쨰 row에 있는지 확인
             past_month=self.month_date.loc[self.month_date['MONTH_DATE']==self.rebalancing_date.iloc[n,0]].index[0]
             cur_month=self.month_date.loc[self.month_date['MONTH_DATE']==self.rebalancing_date.iloc[n+1,0]].index[0]
             
-            
-            first_data=first_data.assign(rnk=np.floor(first_data.iloc[:,self.col_num].rank(method='first')/(data_length/group_goal+1/group_goal)))          # rnk가 클수록 저평가
+            first_data=first_data.assign(rnk1=np.floor(first_data.iloc[:,self.col_num].rank(method='first')))
+            first_data=first_data.assign(rnk2=np.floor(first_data.iloc[:,self.col_num2].rank(method='first')))
+            first_data=first_data.assign(rnk_sum=first_data['rnk1']+first_data['rnk2'])
+            first_data=first_data.assign(rnk=np.floor(first_data.loc[:,'rnk_sum'].rank(method='first')/(data_length/group_goal+1/group_goal)))          # rnk가 클수록 저평가
             
             sum_data = pd.merge(target_data,first_data,on='GICODE') # 3개월치 수익률을 구하기 위해 3개월 후 존재하는 data에 현재 data를 붙임
             sum_data['3M_RETURN'] = sum_data['ADJ_PRC_x']/sum_data['ADJ_PRC_y'] # 3개월동안의 종목 수익률
@@ -81,7 +92,7 @@ class factor_1:
                 return_month_data.iloc[i,3*n]= np.mean(locals()['data_{}'.format(i)]['1ST_RETURN'])
                 return_month_data.iloc[i,3*n+1]= np.mean(locals()['data_{}'.format(i)]['2M_CUM_RETURN']) / np.mean(locals()['data_{}'.format(i)]['1ST_RETURN'])
                 return_month_data.iloc[i,3*n+2]= np.mean(locals()['data_{}'.format(i)]['3M_RETURN']) / np.mean(locals()['data_{}'.format(i)]['2M_CUM_RETURN'])
-           
+        
             return_final=np.product(return_data,axis=1)
                     #turnover 계산    
         for n in range(col_length-1):
@@ -122,5 +133,4 @@ class factor_1:
             
         return [return_final, return_diff, return_month_data_costed]  # 이렇게 return 하면 list로 받아짐
                 
-        
         

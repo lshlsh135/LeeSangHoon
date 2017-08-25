@@ -10,6 +10,8 @@ import pandas as pd
 import numpy as np
 import cx_Oracle
 from factor_1 import factor_1
+from factor_2 import factor_2
+from factor_3 import factor_3
 
 
 #이거 두개 반드시 선언!
@@ -34,7 +36,7 @@ return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
 quarter_data = pd.DataFrame(np.zeros((200,3*col_length)))
 return_final = pd.DataFrame(np.zeros((1,1)))
 return_month_data = pd.DataFrame(np.zeros((1,3*col_length)))
-ir_data = pd.DataFrame(np.zeros((5,30)))
+
 
 first_column = len(raw_data.columns)  # 1/pbr 의 loc
 raw_data['1/pbr']=raw_data['EQUITY']/raw_data['MARKET_CAP']
@@ -42,22 +44,39 @@ raw_data['1/per']=raw_data['ADJ_NI_12M_FWD']/raw_data['MARKET_CAP']
 raw_data['div_yield']=raw_data['CASH_DIV_COM']/raw_data['MARKET_CAP']
 raw_data['roe']=raw_data['NI']/raw_data['EQUITY']
 raw_data['roa']=raw_data['NI']/raw_data['ASSET']
+raw_data['sales_cap']=raw_data['SALES']/raw_data['MARKET_CAP']
+raw_data['gpro_cap']=raw_data['GROSS_PROFIT']/raw_data['MARKET_CAP']
+raw_data['opro_cap']=raw_data['OPE_PROFIT']/raw_data['MARKET_CAP'] # 이놈 시총제한 있고 없고 차이 심한데 
 final_column = len(raw_data.columns)-1 # roa 의 loc
 
+ir_data = pd.DataFrame(np.zeros((final_column-first_column+1,30)))
 factor_num = 1
 row_num = 0
 for i in range(first_column,final_column+1):
     a=factor_1(raw_data,rebalancing_date,month_date,i)
-    locals()['aaa_{}'.format(i)] =a.per()    
+    locals()['aaa_{}'.format(i)] =a.factor_1()    
     ir_data.iloc[row_num,factor_num] = (2*(np.mean(locals()['aaa_{}'.format(i)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}'.format(i)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
     
     row_num += 1
 
 
-a=[3,4]
-len(a)
-a.extend([5])
+for i in range(first_column,final_column+1):
+    for j in range(first_column,final_column+1):
+        if i<j:
+            a=factor_2(raw_data,rebalancing_date,month_date,i,j)
+            locals()['aaa_{}{}'.format(i,j)] =a.factor_2()
+            locals()['ir_data_{}{}'.format(i,j)] = pd.DataFrame(np.zeros((5,30)))
+            locals()['ir_data_{}{}'.format(i,j)] = (2*(np.mean(locals()['aaa_{}{}'.format(i,j)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}'.format(i,j)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
 
+
+for i in range(first_column,final_column+1):
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            if i<j<z:
+                a=factor_3(raw_data,rebalancing_date,month_date,i,j,z)
+                locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3()
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = pd.DataFrame(np.zeros((5,30)))
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = (2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
 
 
 
@@ -69,24 +88,6 @@ import itertools
 a=list(itertools.combinations(range(first_column,final_column+1), 2))
 
 
-for n in range(col_length): 
-    first_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n,0]] # rebalanging할 날짜에 들어있는 모든 db data를 받아온다.
-    target_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n+1,0]] # 다음 리밸런싱 날짜.
-    target_data = target_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
-    # CAP_SIZE : 1코스피대2코스피중3코스피소4코스닥대5코스닥중6코스닥소
-    # 코스닥은 문제가 발생 4 5 6 은 2002년도에 kosdaq big mid small지수가 상장되었기 때문에 그 이전 데이타는 0이라고 나옴
-    # 따라서 iskosdaq라는 새로운 column을 추가했음.
-    # 기존에 했던 backtesting도 틀렸었음.. 물론 2002년 이전 구간만. 그 이후에는 같을것으로 예상
-    first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['ISKOSDAQ']=='KOSDAQ')]
-    first_data = first_data[first_data['MARKET_CAP']>100000000000]
-    first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
-    samsung = first_data[first_data['CO_NM']=='삼성전자']
-    
-    
-    
-    
-    
-    
     
     
     

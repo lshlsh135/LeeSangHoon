@@ -17,4 +17,4 @@ connection = cx_Oracle.connect("lshlsh135","2tkdgns2",cx0)
 #DATA를 가져온다!!
 america_stock_return = pd.read_sql("""select * from america_stock_return""",con=connection)
 
-aa=america_stock_return.head(388).loc[:,'TRD_DATE']
+aa=america_stock_return[america_stock_return['TRD_DATE']=='19300503']

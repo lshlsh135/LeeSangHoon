@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 """
+Created on Tue Aug 29 08:28:48 2017
+
+@author: SH-NoteBook
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Aug 29 08:10:13 2017
+
+@author: SH-NoteBook
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Aug 25 13:04:19 2017
 
 @author: SH-NoteBook
@@ -7,21 +21,22 @@ Created on Fri Aug 25 13:04:19 2017
 
 import numpy as np
 import pandas as pd
-class factor_2_mid:
+class factor_3_mid:
  
-    def __init__(self,raw_data,rebalancing_date,month_date,wics_mid,col_num,col_num2):
-        self.raw_data = raw_data
-        self.rebalancing_date = rebalancing_date
-        self.month_date = month_date
-        self.col_num = col_num
-        self.col_num2 = col_num2
-        self.col_loc = [col_num,col_num2] 
-        self.wics_mid = wics_mid
+    def __init__(self,raw_data,rebalancing_date,month_date,wics_mid,col_num,col_num2,col_num3):
+        raw_data = raw_data
+        rebalancing_date = rebalancing_date
+        month_date = month_date
+        col_num = 28
+        col_num2 = 29
+        col_num3 = 30
+        col_loc = [col_num,col_num2,col_num3] 
+        wics_mid = wics_mid
        
         
 
-    def factor_2_mid(self):
-        col_length = len(self.rebalancing_date)-1 #rebalancing_date의 길이는 66이다. range로 이렇게 하면 0부터 65까지 66개의 i 가 만들어진다. -1을 해준건 실제 수익률은 -1개가 생성되기 때문.
+    def factor_3_mid(self):
+        col_length = len(rebalancing_date)-1 #rebalancing_date의 길이는 66이다. range로 이렇게 하면 0부터 65까지 66개의 i 가 만들어진다. -1을 해준건 실제 수익률은 -1개가 생성되기 때문.
         
         return_data = pd.DataFrame(np.zeros((1,col_length)))
         return_final = pd.DataFrame(np.zeros((1,1)))
@@ -32,21 +47,21 @@ class factor_2_mid:
         quarter_data = pd.DataFrame(np.zeros((200,3*col_length)))
         
         for n in range(col_length): 
-            first_mom = self.wics_mid[self.wics_mid['TRD_DATE']==self.rebalancing_date.iloc[n,0]] 
-            cur_mom_row=self.month_date.loc[self.month_date['MONTH_DATE']==self.rebalancing_date.iloc[n,0]].index[0]
+            first_mom = wics_mid[wics_mid['TRD_DATE']==rebalancing_date.iloc[n,0]] 
+            cur_mom_row=month_date.loc[month_date['MONTH_DATE']==rebalancing_date.iloc[n,0]].index[0]
             
             #cur_month=month_date.loc[month_date['MONTH_DATE']==rebalancing_date.iloc[n+1,0]].index[0]
             
-            mom_return_data_1 = self.wics_mid[self.wics_mid['TRD_DATE']==self.month_date.iloc[cur_mom_row-1,0]] #t-2 data
-            mom_return_data_2 = self.wics_mid[self.wics_mid['TRD_DATE']==self.month_date.iloc[cur_mom_row-12,0]] #t-12 data
+            mom_return_data_1 = wics_mid[wics_mid['TRD_DATE']==month_date.iloc[cur_mom_row-1,0]] #t-2 data
+            mom_return_data_2 = wics_mid[wics_mid['TRD_DATE']==month_date.iloc[cur_mom_row-12,0]] #t-12 data
             mom_return_data_1 = pd.merge(mom_return_data_1,mom_return_data_2,on='GICODE') # 따로따로 계산하려고 했더니 index가 안맞아서 gicode로 merge 했다.
             mom_return_data_1['11M_GROSS_RETURN'] = mom_return_data_1['END_PRICE_x'] / mom_return_data_1['END_PRICE_y'] # 머지하면 index가 필요 없어져서 수익률 계산이 쉬워짐
             
             mom_return_data_1=mom_return_data_1.assign(rnk=np.floor(mom_return_data_1['11M_GROSS_RETURN'].rank(method='first',ascending=False))) # 누적수익률이 높은 섹터별로 ranking
             sector_mom = mom_return_data_1.query('rnk<16') #상위 15 섹터 선택 완료
     
-            first_data = self.raw_data[self.raw_data['TRD_DATE']==self.rebalancing_date.iloc[n,0]] # rebalanging할 날짜에 들어있는 모든 db data를 받아온다.
-            target_data = self.raw_data[self.raw_data['TRD_DATE']==self.rebalancing_date.iloc[n+1,0]]
+            first_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n,0]] # rebalanging할 날짜에 들어있는 모든 db data를 받아온다.
+            target_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n+1,0]]
             target_data = target_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
             first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['ISKOSDAQ']=='KOSDAQ')]
             first_data = first_data[first_data['MARKET_CAP']>100000000000]
@@ -65,7 +80,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_에너지 = data_에너지.replace([np.inf, -np.inf],np.nan)  
                
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_에너지_{}'.format(i)] = data_에너지[data_에너지.iloc[:,i].notnull()]
                     locals()['data_에너지_cap_{}'.format(i)] = np.sum(locals()['data_에너지_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_에너지_{}'.format(i)] = locals()['data_에너지_{}'.format(i)].assign(market_weight=locals()['data_에너지_{}'.format(i)]['size_FIF_wisefn']/locals()['data_에너지_cap_{}'.format(i)])
@@ -75,7 +90,7 @@ class factor_2_mid:
 
                       
                 result_에너지 = data_에너지    
-                result_에너지 = result_에너지.assign(z_score=np.nanmean(result_에너지.loc[:,self.col_loc],axis=1))
+                result_에너지 = result_에너지.assign(z_score=np.nanmean(result_에너지.loc[:,col_loc],axis=1))
             #    result_temp = result
             
                 
@@ -91,7 +106,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_소재 = data_소재.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_소재_{}'.format(i)] = data_소재[data_소재.iloc[:,i].notnull()]
                     locals()['data_소재_cap_{}'.format(i)] = np.sum(locals()['data_소재_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_소재_{}'.format(i)] = locals()['data_소재_{}'.format(i)].assign(market_weight=locals()['data_소재_{}'.format(i)]['size_FIF_wisefn']/locals()['data_소재_cap_{}'.format(i)])
@@ -101,7 +116,7 @@ class factor_2_mid:
                 
                       
                 result_소재 = data_소재    
-                result_소재 = result_소재.assign(z_score=np.nanmean(result_소재.loc[:,self.col_loc],axis=1))
+                result_소재 = result_소재.assign(z_score=np.nanmean(result_소재.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -117,7 +132,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_자본재 = data_자본재.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_자본재_{}'.format(i)] = data_자본재[data_자본재.iloc[:,i].notnull()]
                     locals()['data_자본재_cap_{}'.format(i)] = np.sum(locals()['data_자본재_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_자본재_{}'.format(i)] = locals()['data_자본재_{}'.format(i)].assign(market_weight=locals()['data_자본재_{}'.format(i)]['size_FIF_wisefn']/locals()['data_자본재_cap_{}'.format(i)])
@@ -127,7 +142,7 @@ class factor_2_mid:
                 
                       
                 result_자본재 = data_자본재    
-                result_자본재 = result_자본재.assign(z_score=np.nanmean(result_자본재.loc[:,self.col_loc],axis=1))
+                result_자본재 = result_자본재.assign(z_score=np.nanmean(result_자본재.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -143,7 +158,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_상업서비스와공급품 = data_상업서비스와공급품.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_상업서비스와공급품_{}'.format(i)] = data_상업서비스와공급품[data_상업서비스와공급품.iloc[:,i].notnull()]
                     locals()['data_상업서비스와공급품_cap_{}'.format(i)] = np.sum(locals()['data_상업서비스와공급품_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_상업서비스와공급품_{}'.format(i)] = locals()['data_상업서비스와공급품_{}'.format(i)].assign(market_weight=locals()['data_상업서비스와공급품_{}'.format(i)]['size_FIF_wisefn']/locals()['data_상업서비스와공급품_cap_{}'.format(i)])
@@ -153,7 +168,7 @@ class factor_2_mid:
                 
                       
                 result_상업서비스와공급품 = data_상업서비스와공급품    
-                result_상업서비스와공급품 = result_상업서비스와공급품.assign(z_score=np.nanmean(result_상업서비스와공급품.loc[:,self.col_loc],axis=1))
+                result_상업서비스와공급품 = result_상업서비스와공급품.assign(z_score=np.nanmean(result_상업서비스와공급품.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -169,7 +184,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_운송 = data_운송.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_운송_{}'.format(i)] = data_운송[data_운송.iloc[:,i].notnull()]
                     locals()['data_운송_cap_{}'.format(i)] = np.sum(locals()['data_운송_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_운송_{}'.format(i)] = locals()['data_운송_{}'.format(i)].assign(market_weight=locals()['data_운송_{}'.format(i)]['size_FIF_wisefn']/locals()['data_운송_cap_{}'.format(i)])
@@ -179,7 +194,7 @@ class factor_2_mid:
                 
                       
                 result_운송 = data_운송    
-                result_운송 = result_운송.assign(z_score=np.nanmean(result_운송.loc[:,self.col_loc],axis=1))
+                result_운송 = result_운송.assign(z_score=np.nanmean(result_운송.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -195,7 +210,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_자동차와부품 = data_자동차와부품.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_자동차와부품_{}'.format(i)] = data_자동차와부품[data_자동차와부품.iloc[:,i].notnull()]
                     locals()['data_자동차와부품_cap_{}'.format(i)] = np.sum(locals()['data_자동차와부품_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_자동차와부품_{}'.format(i)] = locals()['data_자동차와부품_{}'.format(i)].assign(market_weight=locals()['data_자동차와부품_{}'.format(i)]['size_FIF_wisefn']/locals()['data_자동차와부품_cap_{}'.format(i)])
@@ -205,7 +220,7 @@ class factor_2_mid:
                 
                       
                 result_자동차와부품 = data_자동차와부품    
-                result_자동차와부품 = result_자동차와부품.assign(z_score=np.nanmean(result_자동차와부품.loc[:,self.col_loc],axis=1))
+                result_자동차와부품 = result_자동차와부품.assign(z_score=np.nanmean(result_자동차와부품.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -221,7 +236,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_내구소비재와의류 = data_내구소비재와의류.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_내구소비재와의류_{}'.format(i)] = data_내구소비재와의류[data_내구소비재와의류.iloc[:,i].notnull()]
                     locals()['data_내구소비재와의류_cap_{}'.format(i)] = np.sum(locals()['data_내구소비재와의류_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_내구소비재와의류_{}'.format(i)] = locals()['data_내구소비재와의류_{}'.format(i)].assign(market_weight=locals()['data_내구소비재와의류_{}'.format(i)]['size_FIF_wisefn']/locals()['data_내구소비재와의류_cap_{}'.format(i)])
@@ -231,7 +246,7 @@ class factor_2_mid:
                 
                       
                 result_내구소비재와의류 = data_내구소비재와의류    
-                result_내구소비재와의류 = result_내구소비재와의류.assign(z_score=np.nanmean(result_내구소비재와의류.loc[:,self.col_loc],axis=1))
+                result_내구소비재와의류 = result_내구소비재와의류.assign(z_score=np.nanmean(result_내구소비재와의류.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -247,7 +262,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_호텔_레스토랑_레저 = data_호텔_레스토랑_레저.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_호텔_레스토랑_레저_{}'.format(i)] = data_호텔_레스토랑_레저[data_호텔_레스토랑_레저.iloc[:,i].notnull()]
                     locals()['data_호텔_레스토랑_레저_cap_{}'.format(i)] = np.sum(locals()['data_호텔_레스토랑_레저_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_호텔_레스토랑_레저_{}'.format(i)] = locals()['data_호텔_레스토랑_레저_{}'.format(i)].assign(market_weight=locals()['data_호텔_레스토랑_레저_{}'.format(i)]['size_FIF_wisefn']/locals()['data_호텔_레스토랑_레저_cap_{}'.format(i)])
@@ -257,7 +272,7 @@ class factor_2_mid:
                 
                       
                 result_호텔_레스토랑_레저 = data_호텔_레스토랑_레저    
-                result_호텔_레스토랑_레저 = result_호텔_레스토랑_레저.assign(z_score=np.nanmean(result_호텔_레스토랑_레저.loc[:,self.col_loc],axis=1))
+                result_호텔_레스토랑_레저 = result_호텔_레스토랑_레저.assign(z_score=np.nanmean(result_호텔_레스토랑_레저.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -273,7 +288,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_미디어 = data_미디어.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_미디어_{}'.format(i)] = data_미디어[data_미디어.iloc[:,i].notnull()]
                     locals()['data_미디어_cap_{}'.format(i)] = np.sum(locals()['data_미디어_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_미디어_{}'.format(i)] = locals()['data_미디어_{}'.format(i)].assign(market_weight=locals()['data_미디어_{}'.format(i)]['size_FIF_wisefn']/locals()['data_미디어_cap_{}'.format(i)])
@@ -283,7 +298,7 @@ class factor_2_mid:
                 
                       
                 result_미디어 = data_미디어    
-                result_미디어 = result_미디어.assign(z_score=np.nanmean(result_미디어.loc[:,self.col_loc],axis=1))
+                result_미디어 = result_미디어.assign(z_score=np.nanmean(result_미디어.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -299,7 +314,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_소매_유통 = data_소매_유통.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_소매_유통_{}'.format(i)] = data_소매_유통[data_소매_유통.iloc[:,i].notnull()]
                     locals()['data_소매_유통_cap_{}'.format(i)] = np.sum(locals()['data_소매_유통_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_소매_유통_{}'.format(i)] = locals()['data_소매_유통_{}'.format(i)].assign(market_weight=locals()['data_소매_유통_{}'.format(i)]['size_FIF_wisefn']/locals()['data_소매_유통_cap_{}'.format(i)])
@@ -309,7 +324,7 @@ class factor_2_mid:
                 
                       
                 result_소매_유통 = data_소매_유통    
-                result_소매_유통 = result_소매_유통.assign(z_score=np.nanmean(result_소매_유통.loc[:,self.col_loc],axis=1))
+                result_소매_유통 = result_소매_유통.assign(z_score=np.nanmean(result_소매_유통.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -325,7 +340,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_교육서비스 = data_교육서비스.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_교육서비스_{}'.format(i)] = data_교육서비스[data_교육서비스.iloc[:,i].notnull()]
                     locals()['data_교육서비스_cap_{}'.format(i)] = np.sum(locals()['data_교육서비스_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_교육서비스_{}'.format(i)] = locals()['data_교육서비스_{}'.format(i)].assign(market_weight=locals()['data_교육서비스_{}'.format(i)]['size_FIF_wisefn']/locals()['data_교육서비스_cap_{}'.format(i)])
@@ -335,7 +350,7 @@ class factor_2_mid:
                 
                       
                 result_교육서비스 = data_교육서비스    
-                result_교육서비스 = result_교육서비스.assign(z_score=np.nanmean(result_교육서비스.loc[:,self.col_loc],axis=1))
+                result_교육서비스 = result_교육서비스.assign(z_score=np.nanmean(result_교육서비스.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -351,7 +366,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_식품과기본식료품소매 = data_식품과기본식료품소매.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_식품과기본식료품소매_{}'.format(i)] = data_식품과기본식료품소매[data_식품과기본식료품소매.iloc[:,i].notnull()]
                     locals()['data_식품과기본식료품소매_cap_{}'.format(i)] = np.sum(locals()['data_식품과기본식료품소매_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_식품과기본식료품소매_{}'.format(i)] = locals()['data_식품과기본식료품소매_{}'.format(i)].assign(market_weight=locals()['data_식품과기본식료품소매_{}'.format(i)]['size_FIF_wisefn']/locals()['data_식품과기본식료품소매_cap_{}'.format(i)])
@@ -361,7 +376,7 @@ class factor_2_mid:
                 
                       
                 result_식품과기본식료품소매 = data_식품과기본식료품소매    
-                result_식품과기본식료품소매 = result_식품과기본식료품소매.assign(z_score=np.nanmean(result_식품과기본식료품소매.loc[:,self.col_loc],axis=1))
+                result_식품과기본식료품소매 = result_식품과기본식료품소매.assign(z_score=np.nanmean(result_식품과기본식료품소매.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -377,7 +392,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_식품_음료_담배 = data_식품_음료_담배.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_식품_음료_담배_{}'.format(i)] = data_식품_음료_담배[data_식품_음료_담배.iloc[:,i].notnull()]
                     locals()['data_식품_음료_담배_cap_{}'.format(i)] = np.sum(locals()['data_식품_음료_담배_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_식품_음료_담배_{}'.format(i)] = locals()['data_식품_음료_담배_{}'.format(i)].assign(market_weight=locals()['data_식품_음료_담배_{}'.format(i)]['size_FIF_wisefn']/locals()['data_식품_음료_담배_cap_{}'.format(i)])
@@ -387,7 +402,7 @@ class factor_2_mid:
                 
                       
                 result_식품_음료_담배 = data_식품_음료_담배    
-                result_식품_음료_담배 = result_식품_음료_담배.assign(z_score=np.nanmean(result_식품_음료_담배.loc[:,self.col_loc],axis=1))
+                result_식품_음료_담배 = result_식품_음료_담배.assign(z_score=np.nanmean(result_식품_음료_담배.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -403,7 +418,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_가정용품과개인용품 = data_가정용품과개인용품.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_가정용품과개인용품_{}'.format(i)] = data_가정용품과개인용품[data_가정용품과개인용품.iloc[:,i].notnull()]
                     locals()['data_가정용품과개인용품_cap_{}'.format(i)] = np.sum(locals()['data_가정용품과개인용품_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_가정용품과개인용품_{}'.format(i)] = locals()['data_가정용품과개인용품_{}'.format(i)].assign(market_weight=locals()['data_가정용품과개인용품_{}'.format(i)]['size_FIF_wisefn']/locals()['data_가정용품과개인용품_cap_{}'.format(i)])
@@ -413,7 +428,7 @@ class factor_2_mid:
                 
                       
                 result_가정용품과개인용품 = data_가정용품과개인용품    
-                result_가정용품과개인용품 = result_가정용품과개인용품.assign(z_score=np.nanmean(result_가정용품과개인용품.loc[:,self.col_loc],axis=1))
+                result_가정용품과개인용품 = result_가정용품과개인용품.assign(z_score=np.nanmean(result_가정용품과개인용품.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -429,7 +444,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_건강관리장비와서비스 = data_건강관리장비와서비스.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_건강관리장비와서비스_{}'.format(i)] = data_건강관리장비와서비스[data_건강관리장비와서비스.iloc[:,i].notnull()]
                     locals()['data_건강관리장비와서비스_cap_{}'.format(i)] = np.sum(locals()['data_건강관리장비와서비스_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_건강관리장비와서비스_{}'.format(i)] = locals()['data_건강관리장비와서비스_{}'.format(i)].assign(market_weight=locals()['data_건강관리장비와서비스_{}'.format(i)]['size_FIF_wisefn']/locals()['data_건강관리장비와서비스_cap_{}'.format(i)])
@@ -439,7 +454,7 @@ class factor_2_mid:
                 
                       
                 result_건강관리장비와서비스 = data_건강관리장비와서비스    
-                result_건강관리장비와서비스 = result_건강관리장비와서비스.assign(z_score=np.nanmean(result_건강관리장비와서비스.loc[:,self.col_loc],axis=1))
+                result_건강관리장비와서비스 = result_건강관리장비와서비스.assign(z_score=np.nanmean(result_건강관리장비와서비스.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -455,7 +470,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_제약과생물공학 = data_제약과생물공학.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_제약과생물공학_{}'.format(i)] = data_제약과생물공학[data_제약과생물공학.iloc[:,i].notnull()]
                     locals()['data_제약과생물공학_cap_{}'.format(i)] = np.sum(locals()['data_제약과생물공학_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_제약과생물공학_{}'.format(i)] = locals()['data_제약과생물공학_{}'.format(i)].assign(market_weight=locals()['data_제약과생물공학_{}'.format(i)]['size_FIF_wisefn']/locals()['data_제약과생물공학_cap_{}'.format(i)])
@@ -465,7 +480,7 @@ class factor_2_mid:
                 
                       
                 result_제약과생물공학 = data_제약과생물공학    
-                result_제약과생물공학 = result_제약과생물공학.assign(z_score=np.nanmean(result_제약과생물공학.loc[:,self.col_loc],axis=1))
+                result_제약과생물공학 = result_제약과생물공학.assign(z_score=np.nanmean(result_제약과생물공학.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -481,7 +496,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_은행 = data_은행.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_은행_{}'.format(i)] = data_은행[data_은행.iloc[:,i].notnull()]
                     locals()['data_은행_cap_{}'.format(i)] = np.sum(locals()['data_은행_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_은행_{}'.format(i)] = locals()['data_은행_{}'.format(i)].assign(market_weight=locals()['data_은행_{}'.format(i)]['size_FIF_wisefn']/locals()['data_은행_cap_{}'.format(i)])
@@ -491,7 +506,7 @@ class factor_2_mid:
                 
                       
                 result_은행 = data_은행    
-                result_은행 = result_은행.assign(z_score=np.nanmean(result_은행.loc[:,self.col_loc],axis=1))
+                result_은행 = result_은행.assign(z_score=np.nanmean(result_은행.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -507,7 +522,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_증권 = data_증권.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_증권_{}'.format(i)] = data_증권[data_증권.iloc[:,i].notnull()]
                     locals()['data_증권_cap_{}'.format(i)] = np.sum(locals()['data_증권_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_증권_{}'.format(i)] = locals()['data_증권_{}'.format(i)].assign(market_weight=locals()['data_증권_{}'.format(i)]['size_FIF_wisefn']/locals()['data_증권_cap_{}'.format(i)])
@@ -517,7 +532,7 @@ class factor_2_mid:
                 
                       
                 result_증권 = data_증권    
-                result_증권 = result_증권.assign(z_score=np.nanmean(result_증권.loc[:,self.col_loc],axis=1))
+                result_증권 = result_증권.assign(z_score=np.nanmean(result_증권.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -533,7 +548,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_다각화된금융 = data_다각화된금융.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_다각화된금융_{}'.format(i)] = data_다각화된금융[data_다각화된금융.iloc[:,i].notnull()]
                     locals()['data_다각화된금융_cap_{}'.format(i)] = np.sum(locals()['data_다각화된금융_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_다각화된금융_{}'.format(i)] = locals()['data_다각화된금융_{}'.format(i)].assign(market_weight=locals()['data_다각화된금융_{}'.format(i)]['size_FIF_wisefn']/locals()['data_다각화된금융_cap_{}'.format(i)])
@@ -543,7 +558,7 @@ class factor_2_mid:
                 
                       
                 result_다각화된금융 = data_다각화된금융    
-                result_다각화된금융 = result_다각화된금융.assign(z_score=np.nanmean(result_다각화된금융.loc[:,self.col_loc],axis=1))
+                result_다각화된금융 = result_다각화된금융.assign(z_score=np.nanmean(result_다각화된금융.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -559,7 +574,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_보험 = data_보험.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_보험_{}'.format(i)] = data_보험[data_보험.iloc[:,i].notnull()]
                     locals()['data_보험_cap_{}'.format(i)] = np.sum(locals()['data_보험_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_보험_{}'.format(i)] = locals()['data_보험_{}'.format(i)].assign(market_weight=locals()['data_보험_{}'.format(i)]['size_FIF_wisefn']/locals()['data_보험_cap_{}'.format(i)])
@@ -569,7 +584,7 @@ class factor_2_mid:
                 
                       
                 result_보험 = data_보험    
-                result_보험 = result_보험.assign(z_score=np.nanmean(result_보험.loc[:,self.col_loc],axis=1))
+                result_보험 = result_보험.assign(z_score=np.nanmean(result_보험.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -585,7 +600,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_부동산 = data_부동산.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_부동산_{}'.format(i)] = data_부동산[data_부동산.iloc[:,i].notnull()]
                     locals()['data_부동산_cap_{}'.format(i)] = np.sum(locals()['data_부동산_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_부동산_{}'.format(i)] = locals()['data_부동산_{}'.format(i)].assign(market_weight=locals()['data_부동산_{}'.format(i)]['size_FIF_wisefn']/locals()['data_부동산_cap_{}'.format(i)])
@@ -595,7 +610,7 @@ class factor_2_mid:
                 
                       
                 result_부동산 = data_부동산    
-                result_부동산 = result_부동산.assign(z_score=np.nanmean(result_부동산.loc[:,self.col_loc],axis=1))
+                result_부동산 = result_부동산.assign(z_score=np.nanmean(result_부동산.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -611,7 +626,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_기타금융서비스 = data_기타금융서비스.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_기타금융서비스_{}'.format(i)] = data_기타금융서비스[data_기타금융서비스.iloc[:,i].notnull()]
                     locals()['data_기타금융서비스_cap_{}'.format(i)] = np.sum(locals()['data_기타금융서비스_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_기타금융서비스_{}'.format(i)] = locals()['data_기타금융서비스_{}'.format(i)].assign(market_weight=locals()['data_기타금융서비스_{}'.format(i)]['size_FIF_wisefn']/locals()['data_기타금융서비스_cap_{}'.format(i)])
@@ -621,7 +636,7 @@ class factor_2_mid:
                 
                       
                 result_기타금융서비스 = data_기타금융서비스    
-                result_기타금융서비스 = result_기타금융서비스.assign(z_score=np.nanmean(result_기타금융서비스.loc[:,self.col_loc],axis=1))
+                result_기타금융서비스 = result_기타금융서비스.assign(z_score=np.nanmean(result_기타금융서비스.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -637,7 +652,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_소프트웨어와서비스 = data_소프트웨어와서비스.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_소프트웨어와서비스_{}'.format(i)] = data_소프트웨어와서비스[data_소프트웨어와서비스.iloc[:,i].notnull()]
                     locals()['data_소프트웨어와서비스_cap_{}'.format(i)] = np.sum(locals()['data_소프트웨어와서비스_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_소프트웨어와서비스_{}'.format(i)] = locals()['data_소프트웨어와서비스_{}'.format(i)].assign(market_weight=locals()['data_소프트웨어와서비스_{}'.format(i)]['size_FIF_wisefn']/locals()['data_소프트웨어와서비스_cap_{}'.format(i)])
@@ -647,7 +662,7 @@ class factor_2_mid:
                 
                       
                 result_소프트웨어와서비스 = data_소프트웨어와서비스    
-                result_소프트웨어와서비스 = result_소프트웨어와서비스.assign(z_score=np.nanmean(result_소프트웨어와서비스.loc[:,self.col_loc],axis=1))
+                result_소프트웨어와서비스 = result_소프트웨어와서비스.assign(z_score=np.nanmean(result_소프트웨어와서비스.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -663,7 +678,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_기술하드웨어와장비 = data_기술하드웨어와장비.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_기술하드웨어와장비_{}'.format(i)] = data_기술하드웨어와장비[data_기술하드웨어와장비.iloc[:,i].notnull()]
                     locals()['data_기술하드웨어와장비_cap_{}'.format(i)] = np.sum(locals()['data_기술하드웨어와장비_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_기술하드웨어와장비_{}'.format(i)] = locals()['data_기술하드웨어와장비_{}'.format(i)].assign(market_weight=locals()['data_기술하드웨어와장비_{}'.format(i)]['size_FIF_wisefn']/locals()['data_기술하드웨어와장비_cap_{}'.format(i)])
@@ -673,7 +688,7 @@ class factor_2_mid:
                 
                       
                 result_기술하드웨어와장비 = data_기술하드웨어와장비    
-                result_기술하드웨어와장비 = result_기술하드웨어와장비.assign(z_score=np.nanmean(result_기술하드웨어와장비.loc[:,self.col_loc],axis=1))
+                result_기술하드웨어와장비 = result_기술하드웨어와장비.assign(z_score=np.nanmean(result_기술하드웨어와장비.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -689,7 +704,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_반도체와반도체장비 = data_반도체와반도체장비.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_반도체와반도체장비_{}'.format(i)] = data_반도체와반도체장비[data_반도체와반도체장비.iloc[:,i].notnull()]
                     locals()['data_반도체와반도체장비_cap_{}'.format(i)] = np.sum(locals()['data_반도체와반도체장비_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_반도체와반도체장비_{}'.format(i)] = locals()['data_반도체와반도체장비_{}'.format(i)].assign(market_weight=locals()['data_반도체와반도체장비_{}'.format(i)]['size_FIF_wisefn']/locals()['data_반도체와반도체장비_cap_{}'.format(i)])
@@ -699,14 +714,14 @@ class factor_2_mid:
                 
                       
                 result_반도체와반도체장비 = data_반도체와반도체장비    
-                result_반도체와반도체장비 = result_반도체와반도체장비.assign(z_score=np.nanmean(result_반도체와반도체장비.loc[:,self.col_loc],axis=1))
+                result_반도체와반도체장비 = result_반도체와반도체장비.assign(z_score=np.nanmean(result_반도체와반도체장비.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
                 # z_score > 0 인것이 가치주라고 msci에서 하고있음
                 locals()['result_{}'.format(a)] =result_반도체와반도체장비[result_반도체와반도체장비['z_score'].notnull()]
                 a=a+1
-                #전자와_전기제품 -> 전자와 전기제품 으로 db에 들어가있음.. 만들때 띄어쓰기 하면 안대서..
+                
             if (np.sum(first_data['WICS_MID']=='전자와 전기제품')>0)&(np.sum(sector_mom['CO_NM_x']=='전자와 전기제품')==1):
                 data_전자와_전기제품 = first_data[first_data['WICS_MID']=='전자와 전기제품']
                 # 시총비중 구할떄는 free-float
@@ -715,7 +730,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_전자와_전기제품 = data_전자와_전기제품.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_전자와_전기제품_{}'.format(i)] = data_전자와_전기제품[data_전자와_전기제품.iloc[:,i].notnull()]
                     locals()['data_전자와_전기제품_cap_{}'.format(i)] = np.sum(locals()['data_전자와_전기제품_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_전자와_전기제품_{}'.format(i)] = locals()['data_전자와_전기제품_{}'.format(i)].assign(market_weight=locals()['data_전자와_전기제품_{}'.format(i)]['size_FIF_wisefn']/locals()['data_전자와_전기제품_cap_{}'.format(i)])
@@ -725,7 +740,7 @@ class factor_2_mid:
                 
                       
                 result_전자와_전기제품 = data_전자와_전기제품    
-                result_전자와_전기제품 = result_전자와_전기제품.assign(z_score=np.nanmean(result_전자와_전기제품.loc[:,self.col_loc],axis=1))
+                result_전자와_전기제품 = result_전자와_전기제품.assign(z_score=np.nanmean(result_전자와_전기제품.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -741,7 +756,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_디스플레이 = data_디스플레이.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_디스플레이_{}'.format(i)] = data_디스플레이[data_디스플레이.iloc[:,i].notnull()]
                     locals()['data_디스플레이_cap_{}'.format(i)] = np.sum(locals()['data_디스플레이_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_디스플레이_{}'.format(i)] = locals()['data_디스플레이_{}'.format(i)].assign(market_weight=locals()['data_디스플레이_{}'.format(i)]['size_FIF_wisefn']/locals()['data_디스플레이_cap_{}'.format(i)])
@@ -751,7 +766,7 @@ class factor_2_mid:
                 
                       
                 result_디스플레이 = data_디스플레이    
-                result_디스플레이 = result_디스플레이.assign(z_score=np.nanmean(result_디스플레이.loc[:,self.col_loc],axis=1))
+                result_디스플레이 = result_디스플레이.assign(z_score=np.nanmean(result_디스플레이.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -767,7 +782,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_통신서비스 = data_통신서비스.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_통신서비스_{}'.format(i)] = data_통신서비스[data_통신서비스.iloc[:,i].notnull()]
                     locals()['data_통신서비스_cap_{}'.format(i)] = np.sum(locals()['data_통신서비스_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_통신서비스_{}'.format(i)] = locals()['data_통신서비스_{}'.format(i)].assign(market_weight=locals()['data_통신서비스_{}'.format(i)]['size_FIF_wisefn']/locals()['data_통신서비스_cap_{}'.format(i)])
@@ -777,7 +792,7 @@ class factor_2_mid:
                 
                       
                 result_통신서비스 = data_통신서비스    
-                result_통신서비스 = result_통신서비스.assign(z_score=np.nanmean(result_통신서비스.loc[:,self.col_loc],axis=1))
+                result_통신서비스 = result_통신서비스.assign(z_score=np.nanmean(result_통신서비스.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -793,7 +808,7 @@ class factor_2_mid:
                 # inf, -inf 값들을 NAN 값으로 변경 (그래야 한번에 제거 가능)
                 data_유틸리티 = data_유틸리티.replace([np.inf, -np.inf],np.nan)  
                    
-                for i in self.col_loc:
+                for i in col_loc:
                     locals()['data_유틸리티_{}'.format(i)] = data_유틸리티[data_유틸리티.iloc[:,i].notnull()]
                     locals()['data_유틸리티_cap_{}'.format(i)] = np.sum(locals()['data_유틸리티_{}'.format(i)]['size_FIF_wisefn'])
                     locals()['data_유틸리티_{}'.format(i)] = locals()['data_유틸리티_{}'.format(i)].assign(market_weight=locals()['data_유틸리티_{}'.format(i)]['size_FIF_wisefn']/locals()['data_유틸리티_cap_{}'.format(i)])
@@ -803,7 +818,7 @@ class factor_2_mid:
                 
                       
                 result_유틸리티 = data_유틸리티    
-                result_유틸리티 = result_유틸리티.assign(z_score=np.nanmean(result_유틸리티.loc[:,self.col_loc],axis=1))
+                result_유틸리티 = result_유틸리티.assign(z_score=np.nanmean(result_유틸리티.loc[:,col_loc],axis=1))
                 #    result_temp = result
                 
                 
@@ -818,7 +833,7 @@ class factor_2_mid:
             result = locals()['result_{}'.format(1)]
             result=result.assign(rnk=result['z_score'].rank(method='first',ascending=False)) 
             
-            for i in self.col_loc:
+            for i in col_loc:
                 samsung[i]=0
                 samsung['z_score'] = 0
                 samsung['rnk'] = 0                                       
@@ -832,12 +847,12 @@ class factor_2_mid:
             
             #월별 수익률을 구해보자
             #월별 수익률을 구하기 위해 month_date 에서 필요한 날짜가 몇번쨰 row에 있는지 확인
-            past_month=self.month_date.loc[self.month_date['MONTH_DATE']==self.rebalancing_date.iloc[n,0]].index[0]
-            cur_month=self.month_date.loc[self.month_date['MONTH_DATE']==self.rebalancing_date.iloc[n+1,0]].index[0]
+            past_month=month_date.loc[month_date['MONTH_DATE']==rebalancing_date.iloc[n,0]].index[0]
+            cur_month=month_date.loc[month_date['MONTH_DATE']==rebalancing_date.iloc[n+1,0]].index[0]
             
             first_data = result.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
             for i in range(past_month+1,cur_month): # 3개월치의 월별 수익률을 구하기 위해선 4개의 price 데이터가 필요한데 2개밖에 없으니 2개를 더 받아온다.
-                second_data = self.raw_data[self.raw_data['TRD_DATE']==self.month_date.iloc[i,0]]  #월별 데이터를 받아와서
+                second_data = raw_data[raw_data['TRD_DATE']==month_date.iloc[i,0]]  #월별 데이터를 받아와서
                 second_data = second_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]   # 간단하게 만든다음
                 first_data = pd.merge(first_data,second_data,on='GICODE')   # first_data와 합친다
             
@@ -853,7 +868,7 @@ class factor_2_mid:
             market_capital=np.sum(result['size_FIF_wisefn']) # 전체 시가총액 -> 삼성전자 시총 비중을 구하기 위해
             result=result.assign(market_weight2=result['size_FIF_wisefn']/market_capital)          
             
-            first_data = self.raw_data[self.raw_data['TRD_DATE']==self.rebalancing_date.iloc[n,0]]
+            first_data = raw_data[raw_data['TRD_DATE']==rebalancing_date.iloc[n,0]]
             samsung_weight = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)]
             samsung_weight = pd.merge(target_data,samsung_weight,on='GICODE') # 3개월치 수익률을 구하기 위해 3개월 후 존재하는 data에 현재 data를 붙임
             samsung_weight['3M_RETURN'] = samsung_weight['ADJ_PRC_x']/samsung_weight['ADJ_PRC_y'] # 3개월동안의 종목 수익률

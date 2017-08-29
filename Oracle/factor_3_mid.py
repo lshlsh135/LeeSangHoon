@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Tue Aug 29 08:10:13 2017
+
+@author: SH-NoteBook
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Aug 25 13:04:19 2017
 
 @author: SH-NoteBook
@@ -7,20 +14,21 @@ Created on Fri Aug 25 13:04:19 2017
 
 import numpy as np
 import pandas as pd
-class factor_2_mid:
+class factor_3_mid:
  
-    def __init__(self,raw_data,rebalancing_date,month_date,wics_mid,col_num,col_num2):
+    def __init__(self,raw_data,rebalancing_date,month_date,wics_mid,col_num,col_num2,col_num3):
         self.raw_data = raw_data
         self.rebalancing_date = rebalancing_date
         self.month_date = month_date
         self.col_num = col_num
         self.col_num2 = col_num2
-        self.col_loc = [col_num,col_num2] 
+        self.col_num3 = col_num3
+        self.col_loc = [col_num,col_num2,col_num3] 
         self.wics_mid = wics_mid
        
         
 
-    def factor_2_mid(self):
+    def factor_3_mid(self):
         col_length = len(self.rebalancing_date)-1 #rebalancing_date의 길이는 66이다. range로 이렇게 하면 0부터 65까지 66개의 i 가 만들어진다. -1을 해준건 실제 수익률은 -1개가 생성되기 때문.
         
         return_data = pd.DataFrame(np.zeros((1,col_length)))
@@ -706,9 +714,9 @@ class factor_2_mid:
                 # z_score > 0 인것이 가치주라고 msci에서 하고있음
                 locals()['result_{}'.format(a)] =result_반도체와반도체장비[result_반도체와반도체장비['z_score'].notnull()]
                 a=a+1
-                #전자와_전기제품 -> 전자와 전기제품 으로 db에 들어가있음.. 만들때 띄어쓰기 하면 안대서..
-            if (np.sum(first_data['WICS_MID']=='전자와 전기제품')>0)&(np.sum(sector_mom['CO_NM_x']=='전자와 전기제품')==1):
-                data_전자와_전기제품 = first_data[first_data['WICS_MID']=='전자와 전기제품']
+                
+            if (np.sum(first_data['WICS_MID']=='전자와_전기제품')>0)&(np.sum(sector_mom['CO_NM_x']=='전자와_전기제품')==1):
+                data_전자와_전기제품 = first_data[first_data['WICS_MID']=='전자와_전기제품']
                 # 시총비중 구할떄는 free-float
                 #        data_전자와_전기제품['size_FIF_wisefn']=data_전자와_전기제품['size_FIF_wisefn']/1000    #size 단위 thousand
                 data_전자와_전기제품.loc[:,'size_FIF_wisefn']=data_전자와_전기제품.loc[:,'size_FIF_wisefn']/1000   

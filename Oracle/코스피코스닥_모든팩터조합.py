@@ -12,7 +12,8 @@ import cx_Oracle
 from factor_1 import factor_1
 from factor_2 import factor_2
 from factor_3 import factor_3
-
+from factor_2_mid import factor_2_mid
+from factor_3_mid import factor_3_mid
 
 #이거 두개 반드시 선언!
 cx0=cx_Oracle.makedsn("localhost",1521,"xe")
@@ -75,8 +76,25 @@ for i in range(first_column,final_column+1):
             if i<j<z:
                 a=factor_3(raw_data,rebalancing_date,month_date,i,j,z)
                 locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3()
-                locals()['ir_data_{}{}{}'.format(i,j,z)] = pd.DataFrame(np.zeros((5,30)))
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = pd.DataFrame(np.zeros((1,30)))
                 locals()['ir_data_{}{}{}'.format(i,j,z)] = (2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
+
+
+
+
+
+a=factor_2_mid(raw_data,rebalancing_date,month_date,wics_mid,28,29)
+adfadf=a.factor_2_mid()
+
+
+for i in range(first_column,final_column+1):
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            if i<j<z:
+                a=factor_3_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z)
+                locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3_mid()
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = (2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter,axis=1))[0]
+
 
 
 

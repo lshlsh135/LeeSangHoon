@@ -14,6 +14,7 @@ from factor_2 import factor_2
 from factor_3 import factor_3
 from factor_2_mid import factor_2_mid
 from factor_3_mid import factor_3_mid
+from factor_4_mid import factor_4_mid
 
 #이거 두개 반드시 선언!
 cx0=cx_Oracle.makedsn("localhost",1521,"xe")
@@ -86,7 +87,7 @@ for i in range(first_column,final_column+1):
 a=factor_2_mid(raw_data,rebalancing_date,month_date,wics_mid,28,29)
 adfadf=a.factor_2_mid()
 
-
+#factor 3개 랜덤하게 골라서 성과 측정
 for i in range(first_column,final_column+1):
     for j in range(first_column,final_column+1):
         for z in range(first_column,final_column+1):
@@ -95,6 +96,16 @@ for i in range(first_column,final_column+1):
                 locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3_mid()
                 locals()['ir_data_{}{}{}'.format(i,j,z)] = (2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter,axis=1))[0]
 
+
+#factor 4개 랜덤하게 골라서 성과 측정
+for i in range(first_column,final_column+1):
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            for p in range(first_column,final_column+1):
+                if i<j<z<p:
+                    a=factor_4_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z,p)
+                    locals()['aaa_{}{}{}{}'.format(i,j,z,p)] =a.factor_4_mid()
+                    locals()['ir_data_{}{}{}{}'.format(i,j,z,p)] = (2*(np.mean(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1]-kospi_quarter,axis=1))[0]
 
 
 

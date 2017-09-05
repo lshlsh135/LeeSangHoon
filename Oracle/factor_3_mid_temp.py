@@ -65,6 +65,7 @@ class factor_3_mid:
             target_data = target_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
             first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['ISKOSDAQ']=='KOSDAQ')]
             first_data = first_data[first_data['MARKET_CAP']>100000000000]
+            first_data = first_data[first_data['EQUITY'].notnull()]
             first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
             samsung = first_data[first_data['CO_NM']=='삼성전자']
                        

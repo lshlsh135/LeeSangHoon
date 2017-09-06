@@ -53,9 +53,9 @@ raw_data['gpro_cap']=raw_data['GROSS_PROFIT']/raw_data['MARKET_CAP']
 raw_data['opro_cap']=raw_data['OPE_PROFIT']/raw_data['MARKET_CAP'] # 이놈 시총제한 있고 없고 차이 심한데 
 raw_data['sales_cap_ttm']=raw_data['SALES_TTM']/raw_data['MARKET_CAP']
 raw_data['opro_cap_ttm']=raw_data['OPE_PROFIT_TTM']/raw_data['MARKET_CAP']
-raw_data['trd_value']=raw_data['TRD_VALUE_60D_MEAN']/raw_data['MARKET_CAP']
-raw_data['vol'] = raw_data['STD_52WEEK']
-raw_data['beta'] = raw_data['BEDA_52WEEK_D']
+raw_data['1/trd_value']=raw_data['MARKET_CAP'] /raw_data['TRD_VALUE_60D_MEAN']
+raw_data['1/vol'] = 1/raw_data['STD_52WEEK']
+raw_data['1/beta'] = 1/raw_data['BEDA_52WEEK_D']
 
 final_column = len(raw_data.columns)-1 # roa 의 loc
 

@@ -94,6 +94,16 @@ for i in range(first_column,final_column+1):
 a=factor_3_mid(raw_data,rebalancing_date,month_date,wics_mid,32,34,38)
 adfadf=a.factor_3_mid()
 
+
+
+for i in range(32,34):
+    for j in range(first_column,final_column+1):
+        if i<j:
+            a=factor_2_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j)
+            locals()['aaa_{}{}'.format(i,j)] =a.factor_2_mid()
+            locals()['ir_data_{}{}'.format(i,j)] = (2*(np.mean(locals()['aaa_{}{}'.format(i,j)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}'.format(i,j)][1]-kospi_quarter,axis=1))[0]
+
+
 #factor 3개 랜덤하게 골라서 성과 측정
 for i in range(32,34):
     for j in range(first_column,final_column+1):
@@ -105,7 +115,7 @@ for i in range(32,34):
 
 
 #factor 4개 랜덤하게 골라서 성과 측정
-for i in range(first_column,final_column+1):
+for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
     for j in range(first_column,final_column+1):
         for z in range(first_column,final_column+1):
             for p in range(first_column,final_column+1):

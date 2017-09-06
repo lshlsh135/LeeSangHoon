@@ -50,6 +50,7 @@ class factor_2_mid:
             target_data = target_data.loc[:,['TRD_DATE','GICODE','ADJ_PRC']]
             first_data = first_data[(first_data['CAP_SIZE']==1)|(first_data['CAP_SIZE']==2)|(first_data['CAP_SIZE']==3)|(first_data['ISKOSDAQ']=='KOSDAQ')]
             first_data = first_data[first_data['MARKET_CAP']>100000000000]
+            first_data = first_data[first_data['EQUITY'].notnull()]
             first_data['size_FIF_wisefn'] = first_data['JISU_STOCK']*first_data['FIF_RATIO']*first_data['ADJ_PRC']
             samsung = first_data[first_data['CO_NM']=='삼성전자']
                        
@@ -706,9 +707,9 @@ class factor_2_mid:
                 # z_score > 0 인것이 가치주라고 msci에서 하고있음
                 locals()['result_{}'.format(a)] =result_반도체와반도체장비[result_반도체와반도체장비['z_score'].notnull()]
                 a=a+1
-                #전자와_전기제품 -> 전자와 전기제품 으로 db에 들어가있음.. 만들때 띄어쓰기 하면 안대서..
-            if (np.sum(first_data['WICS_MID']=='전자와 전기제품')>0)&(np.sum(sector_mom['CO_NM_x']=='전자와 전기제품')==1):
-                data_전자와_전기제품 = first_data[first_data['WICS_MID']=='전자와 전기제품']
+                
+            if (np.sum(first_data['WICS_MID']=='전자와_전기제품')>0)&(np.sum(sector_mom['CO_NM_x']=='전자와_전기제품')==1):
+                data_전자와_전기제품 = first_data[first_data['WICS_MID']=='전자와_전기제품']
                 # 시총비중 구할떄는 free-float
                 #        data_전자와_전기제품['size_FIF_wisefn']=data_전자와_전기제품['size_FIF_wisefn']/1000    #size 단위 thousand
                 data_전자와_전기제품.loc[:,'size_FIF_wisefn']=data_전자와_전기제품.loc[:,'size_FIF_wisefn']/1000   
@@ -915,4 +916,3 @@ class factor_2_mid:
             
         return [return_final, return_diff, return_month_data_costed, data_name]  # 이렇게 return 하면 list로 받아짐
                 
-        

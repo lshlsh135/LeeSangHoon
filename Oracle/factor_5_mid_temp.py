@@ -13,11 +13,11 @@ class factor_5_mid:
         raw_data = raw_data
         rebalancing_date = rebalancing_date
         month_date = month_date
-        col_num = col_num
-        col_num2 = col_num2
-        col_num3 = col_num3
-        col_num4 = col_num4
-        col_num5 = col_num5
+        col_num = 32
+        col_num2 = 33
+        col_num3 = 34
+        col_num4 = 35
+        col_num5 = 36
         col_loc = [col_num,col_num2,col_num3,col_num4,col_num5] 
         wics_mid = wics_mid
        

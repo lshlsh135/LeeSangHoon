@@ -130,7 +130,8 @@ for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
                     a=factor_4_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z,p)
                     locals()['aaa_{}{}{}{}'.format(i,j,z,p)] =a.factor_4_mid()
                     locals()['ir_data_{}{}{}{}'.format(i,j,z,p)] = 2*(np.mean(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1]-kospi_quarter['RET'],axis=1)
-
+                    b=return_calculator(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1],locals()['aaa_{}{}{}{}'.format(i,j,z,p)][2],kospi_quarter,kospi_month)
+                    b.rolling_12month_return_4factor(i,j,z,p)
 
 #factor 4 에서  그래프 그리기 쉽도록 월별 수익률만 남길때..
 for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
@@ -153,7 +154,8 @@ for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
                         a=factor_5_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z,p,k)
                         locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)] =a.factor_5_mid()
                         locals()['ir_data_{}{}{}{}{}'.format(i,j,z,p,k)] = 2*(np.mean(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1]-kospi_quarter['RET'],axis=1)
-
+                        b=return_calculator(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1],locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][2],kospi_quarter,kospi_month)
+                        b.rolling_12month_return_5factor(i,j,z,p,k)
 
 #factor 3개 랜덤하게 골라서 대형주25, 중소코스피 75종목 고름
 for i in range(first_column,final_column+1):

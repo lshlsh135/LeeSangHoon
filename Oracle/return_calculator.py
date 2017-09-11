@@ -26,11 +26,41 @@ class return_calculator:
         self.factor_name = [i,j,z]
         for i in range(self.col_num-11):
             self.diff_12m_monthly.iloc[0,i]=np.prod(self.return_month_data_costed.iloc[0,i:i+12])-np.prod(self.kospi_month.iloc[1,i:i+12])
-            
+        
+        ir_20010228 = 2*(np.mean(self.return_diff.iloc[0,:])-np.mean(self.kospi_quarter.transpose().iloc[1,:]))/np.std(self.return_diff.iloc[0,:]-self.kospi_quarter.transpose().iloc[1,:])        
+        ir_20080228 = 2*(np.mean(self.return_diff.iloc[0,28:])-np.mean(self.kospi_quarter.transpose().iloc[1,28:]))/np.std(self.return_diff.iloc[0,28:]-self.kospi_quarter.transpose().iloc[1,28:])        
+        self.factor_name = [self.factor_name, ir_20010228, ir_20080228]
         plt.figure(1)   
         plt.grid(True)
-        plt.plot(self.diff_12m_monthly.iloc[0,82:].transpose())    
+        plt.plot(self.diff_12m_monthly.iloc[0,84:].transpose())    
         plt.title(self.factor_name)
         return plt.show()
     
+    def rolling_12month_return_4factor(self,i,j,z,p):
+        self.factor_name = [i,j,z,p]
+        for i in range(self.col_num-11):
+            self.diff_12m_monthly.iloc[0,i]=np.prod(self.return_month_data_costed.iloc[0,i:i+12])-np.prod(self.kospi_month.iloc[1,i:i+12])
+            
+        ir_20010228 = 2*(np.mean(self.return_diff.iloc[0,:])-np.mean(self.kospi_quarter.transpose().iloc[1,:]))/np.std(self.return_diff.iloc[0,:]-self.kospi_quarter.transpose().iloc[1,:])        
+        ir_20080228 = 2*(np.mean(self.return_diff.iloc[0,28:])-np.mean(self.kospi_quarter.transpose().iloc[1,28:]))/np.std(self.return_diff.iloc[0,28:]-self.kospi_quarter.transpose().iloc[1,28:])        
+        self.factor_name = [self.factor_name, ir_20010228, ir_20080228]
+        plt.figure(1)   
+        plt.grid(True)
+        plt.plot(self.diff_12m_monthly.iloc[0,84:].transpose())    
+        plt.title(self.factor_name)
+        return plt.show()
+    
+    def rolling_12month_return_5factor(self,i,j,z,p,k):
+        self.factor_name = [i,j,z,p,k]
+        for i in range(self.col_num-11):
+            self.diff_12m_monthly.iloc[0,i]=np.prod(self.return_month_data_costed.iloc[0,i:i+12])-np.prod(self.kospi_month.iloc[1,i:i+12])
+        
+        ir_20010228 = 2*(np.mean(self.return_diff.iloc[0,:])-np.mean(self.kospi_quarter.transpose().iloc[1,:]))/np.std(self.return_diff.iloc[0,:]-self.kospi_quarter.transpose().iloc[1,:])        
+        ir_20080228 = 2*(np.mean(self.return_diff.iloc[0,28:])-np.mean(self.kospi_quarter.transpose().iloc[1,28:]))/np.std(self.return_diff.iloc[0,28:]-self.kospi_quarter.transpose().iloc[1,28:])        
+        self.factor_name = [self.factor_name, ir_20010228, ir_20080228]
+        plt.figure(1)   
+        plt.grid(True)
+        plt.plot(self.diff_12m_monthly.iloc[0,84:].transpose())    
+        plt.title(self.factor_name)
+        return plt.show()
     

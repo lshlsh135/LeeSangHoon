@@ -24,7 +24,9 @@ class return_calculator:
         for i in range(col_num-11):
             diff_12m_monthly.iloc[0,i]=np.prod(return_month_data_costed.iloc[0,i:i+12])-np.prod(kospi_month.iloc[1,i:i+12])
 
-        return diff_12m_monthly.iloc[0,82:].transpose().plot(grid=True).set_title(factor_name) #82번째부터가 2008년 1월말          
+        return diff_12m_monthly.iloc[0,84:].transpose().plot(grid=True).set_title(factor_name) #82번째부터가 2008년 2월말부터 투자한것  
+
+ 2*(np.mean(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1].iloc[0,28:])-np.mean(kospi_quarter.transpose().iloc[1,28:]))/np.std(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1].iloc[0,28:]-kospi_quarter.transpose().iloc[1,28:])        
     
     
 

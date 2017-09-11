@@ -28,8 +28,8 @@ class factor_3_mid:
         rebalancing_date = rebalancing_date
         month_date = month_date
         col_num = 32
-        col_num2 = 33
-        col_num3 = 34
+        col_num2 = 34
+        col_num3 = 38
         col_loc = [col_num,col_num2,col_num3] 
         wics_mid = wics_mid
        

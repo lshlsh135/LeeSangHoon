@@ -16,6 +16,7 @@ from factor_2_mid import factor_2_mid
 from factor_3_mid import factor_3_mid
 from factor_4_mid import factor_4_mid
 from factor_3_mid_대_중소코 import factor_3_mid_대_중소코
+from factor_5_mid import factor_5_mid
 
 
 #이거 두개 반드시 선언!
@@ -24,6 +25,11 @@ connection = cx_Oracle.connect("lshlsh135","2tkdgns2",cx0) #이게 실행이 안
 #그때는 services에 들어가서 oracle listner를 실행시켜줘야함
 
 kospi_quarter = pd.read_excel("kospi_quarter_data.xlsx",sheetname="kospi",header=None)
+kospi_quarter = kospi_quarter.iloc[14,4:].reset_index(drop=True)
+kospi_quarter = pd.read_sql("""select * from kospi_quarter_return""",con=connection)
+kospi_month = pd.read_excel("kospi_month_data.xlsx",sheetname="kosdaq",header=None)
+kospi_month = kospi_month.iloc[14,4:].reset_index(drop=True)
+kospi_month = pd.read_sql("""select * from kospi_month_return""",con=connection)
 #DATA를 가져온다!!
 kospi = pd.read_sql("""select * from kospi""",con=connection)
 kosdaq = pd.read_sql("""select * from kosdaq""",con=connection)
@@ -65,7 +71,7 @@ row_num = 0
 for i in range(first_column,final_column+1):
     a=factor_1(raw_data,rebalancing_date,month_date,i)
     locals()['aaa_{}'.format(i)] =a.factor_1()    
-    ir_data.iloc[row_num,factor_num] = (2*(np.mean(locals()['aaa_{}'.format(i)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}'.format(i)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
+    ir_data.iloc[row_num,factor_num] = 2*(np.mean(locals()['aaa_{}'.format(i)][1].iloc[4,:])-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}'.format(i)][1].iloc[4,:]-kospi_quarter['RET'],axis=1)
     
     row_num += 1
 
@@ -76,7 +82,7 @@ for i in range(first_column,final_column+1):
             a=factor_2(raw_data,rebalancing_date,month_date,i,j)
             locals()['aaa_{}{}'.format(i,j)] =a.factor_2()
             locals()['ir_data_{}{}'.format(i,j)] = pd.DataFrame(np.zeros((5,30)))
-            locals()['ir_data_{}{}'.format(i,j)] = (2*(np.mean(locals()['aaa_{}{}'.format(i,j)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}'.format(i,j)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
+            locals()['ir_data_{}{}'.format(i,j)] = 2*(np.mean(locals()['aaa_{}{}'.format(i,j)][1].iloc[4,:])-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}'.format(i,j)][1].iloc[4,:]-kospi_quarter['RET'],axis=1)
 
 
 for i in range(first_column,final_column+1):
@@ -86,7 +92,7 @@ for i in range(first_column,final_column+1):
                 a=factor_3(raw_data,rebalancing_date,month_date,i,j,z)
                 locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3()
                 locals()['ir_data_{}{}{}'.format(i,j,z)] = pd.DataFrame(np.zeros((1,30)))
-                locals()['ir_data_{}{}{}'.format(i,j,z)] = (2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:])-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:]-kospi_quarter,axis=1))[0]
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = 2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:])-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1].iloc[4,:]-kospi_quarter['RET'],axis=1)
 
 
 
@@ -101,7 +107,7 @@ for i in range(32,34):
         if i<j:
             a=factor_2_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j)
             locals()['aaa_{}{}'.format(i,j)] =a.factor_2_mid()
-            locals()['ir_data_{}{}'.format(i,j)] = (2*(np.mean(locals()['aaa_{}{}'.format(i,j)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}'.format(i,j)][1]-kospi_quarter,axis=1))[0]
+            locals()['ir_data_{}{}'.format(i,j)] = 2*(np.mean(locals()['aaa_{}{}'.format(i,j)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}'.format(i,j)][1]-kospi_quarter['RET'],axis=1)
 
 
 #factor 3개 랜덤하게 골라서 성과 측정
@@ -111,7 +117,7 @@ for i in range(32,34):
             if i<j<z:
                 a=factor_3_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z)
                 locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3_mid()
-                locals()['ir_data_{}{}{}'.format(i,j,z)] = (2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter,axis=1))[0]
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = 2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter['RET'],axis=1)
 
 
 #factor 4개 랜덤하게 골라서 성과 측정
@@ -122,7 +128,30 @@ for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
                 if i<j<z<p:
                     a=factor_4_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z,p)
                     locals()['aaa_{}{}{}{}'.format(i,j,z,p)] =a.factor_4_mid()
-                    locals()['ir_data_{}{}{}{}'.format(i,j,z,p)] = (2*(np.mean(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1]-kospi_quarter,axis=1))[0]
+                    locals()['ir_data_{}{}{}{}'.format(i,j,z,p)] = 2*(np.mean(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}{}'.format(i,j,z,p)][1]-kospi_quarter['RET'],axis=1)
+
+
+#factor 4 에서  그래프 그리기 쉽도록 월별 수익률만 남길때..
+for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            if i<j<z:
+                locals()['aaa_{}{}{}'.format(i,j,z)] =locals()['aaa_{}{}{}'.format(i,j,z)][1]
+
+
+
+
+
+#factor 5개 랜덤하게 골라서 성과 측정
+for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            for p in range(first_column,final_column+1):
+                for k in range(first_column,final_column+1):
+                    if i<j<z<p<k:
+                        a=factor_5_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z,p,k)
+                        locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)] =a.factor_5_mid()
+                        locals()['ir_data_{}{}{}{}{}'.format(i,j,z,p,k)] = 2*(np.mean(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1]-kospi_quarter['RET'],axis=1)
 
 
 #factor 3개 랜덤하게 골라서 대형주25, 중소코스피 75종목 고름
@@ -132,7 +161,7 @@ for i in range(first_column,final_column+1):
             if i<j<z:
                 a=factor_3_mid_대_중소코(raw_data,rebalancing_date,month_date,wics_mid,i,j,z)
                 locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3_mid_대_중소코()
-                locals()['ir_data_{}{}{}'.format(i,j,z)] = (2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter,axis=1))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter,axis=1))[0]
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = 2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter['RET'],axis=1)
 
 
 

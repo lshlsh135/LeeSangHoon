@@ -9,14 +9,7 @@ Created on Thu Aug 24 13:27:10 2017
 import pandas as pd
 import numpy as np
 import cx_Oracle
-from factor_1 import factor_1
-from factor_2 import factor_2
-from factor_3 import factor_3
-from factor_2_mid import factor_2_mid
-from factor_3_mid import factor_3_mid
-from factor_4_mid import factor_4_mid
-from factor_3_mid_대_중소코 import factor_3_mid_대_중소코
-from factor_5_mid import factor_5_mid
+from factor_3_mid_삼전포함_동일가중 import factor_3_mid
 from return_calculator import return_calculator
 
 

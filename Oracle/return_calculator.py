@@ -34,6 +34,7 @@ class return_calculator:
         plt.grid(True)
         plt.plot(self.diff_12m_monthly.iloc[0,84:].transpose())    
         plt.title(self.factor_name)
+        plt.savefig(str(self.factor_name)+'.png')
         return plt.show()
     
     def rolling_12month_return_4factor(self,i,j,z,p):
@@ -62,5 +63,6 @@ class return_calculator:
         plt.grid(True)
         plt.plot(self.diff_12m_monthly.iloc[0,84:].transpose())    
         plt.title(self.factor_name)
+        
         return plt.show()
     

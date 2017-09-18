@@ -843,7 +843,7 @@ class factor_5_mid:
             
             result = pd.concat([result,samsung])
             result = result.drop_duplicates(subset='CO_NM', keep='last')
-            result = result[result['rnk']<25]
+            result = result[result['rnk']<50]
             
             sum_data = pd.merge(target_data,result,on='GICODE') # 3개월치 수익률을 구하기 위해 3개월 후 존재하는 data에 현재 data를 붙임
             sum_data['3M_RETURN'] = sum_data['ADJ_PRC_x']/sum_data['ADJ_PRC_y'] # 3개월동안의 종목 수익률

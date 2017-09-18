@@ -16,8 +16,8 @@ class factor_5_mid:
         col_num = 32
         col_num2 = 33
         col_num3 = 34
-        col_num4 = 35
-        col_num5 = 36
+        col_num4 = 37
+        col_num5 = 40
         col_loc = [col_num,col_num2,col_num3,col_num4,col_num5] 
         wics_mid = wics_mid
        

@@ -11,6 +11,7 @@ import numpy as np
 import cx_Oracle
 from factor_3_mid_삼전x_시총제한x_동일가중 import factor_3_mid
 from return_calculator import return_calculator
+from factor_4_mid_삼전x_시총제한x_동일가중 import factor_4_mid
 
 
 

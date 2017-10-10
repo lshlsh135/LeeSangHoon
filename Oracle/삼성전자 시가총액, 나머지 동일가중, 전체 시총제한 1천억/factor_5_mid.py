@@ -5,19 +5,6 @@ Created on Thu Sep  7 08:11:57 2017
 @author: SH-NoteBook
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Aug 29 16:43:11 2017
-
-@author: SH-NoteBook
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Aug 29 08:10:13 2017
-
-@author: SH-NoteBook
-"""
 
 import numpy as np
 import pandas as pd
@@ -914,7 +901,7 @@ class factor_5_mid:
         return_transaction_cost_final=np.product(return_diff,axis=1)    
             
         #monthly data에도 cost 반영
-        import copy   # 엠창 존나 어려운거발견함 장족의 발전이다
+        import copy   
         #deep copy랑 swallow copy 가 있는데  a=[1,2,3]을 만들면 a에 [1,2,3]이 저장되는게 아니라
         #[1,2,3]이라는 객체가 생성되고 여기에 a 가 할당됨. 그런데 여기다 a=b 를 해버리면 b도 
         # 저 객체에 할당되어버려서, b를변경하든 a를 변경하든 같이 바뀜. 

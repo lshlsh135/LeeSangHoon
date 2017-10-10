@@ -14,9 +14,12 @@ from factor_2 import factor_2
 from factor_3 import factor_3
 from factor_2_mid import factor_2_mid
 from factor_3_mid import factor_3_mid
+from factor_3_mid_섹터z_score import factor_3_mid_섹터z_score
+from factor_3_mid_adoutlier import factor_3_mid_adoutlier
 from factor_4_mid import factor_4_mid
 from factor_3_mid_대_중소코 import factor_3_mid_대_중소코
 from factor_5_mid import factor_5_mid
+from factor_5_mid_adoutlier import factor_5_mid_adoutlier
 from return_calculator import return_calculator
 
 
@@ -120,6 +123,29 @@ for i in range(32,34):
                 locals()['ir_data_{}{}{}'.format(i,j,z)] = 2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter['RET'],axis=1)
                 b=return_calculator(locals()['aaa_{}{}{}'.format(i,j,z)][1],locals()['aaa_{}{}{}'.format(i,j,z)][2],kospi_quarter,kospi_month)
                 b.rolling_12month_return_3factor(i,j,z)
+                
+                
+#factor 3개 랜덤하게 골라서 성과 측정 _ 이상치 스무딩
+for i in range(32,34):
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            if i<j<z:
+                a=factor_3_mid_adoutlier(raw_data,rebalancing_date,month_date,wics_mid,i,j,z)
+                locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3_mid_adoutlier()
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = 2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter['RET'],axis=1)
+                b=return_calculator(locals()['aaa_{}{}{}'.format(i,j,z)][1],locals()['aaa_{}{}{}'.format(i,j,z)][2],kospi_quarter,kospi_month)
+                b.rolling_12month_return_3factor(i,j,z)
+                
+#factor 3개 랜덤하게 골라서 성과 측정 _ 섹터 z_score
+for i in range(32,34):
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            if i<j<z:
+                a=factor_3_mid_섹터z_score(raw_data,rebalancing_date,month_date,wics_mid,i,j,z)
+                locals()['aaa_{}{}{}'.format(i,j,z)] =a.factor_3_mid_섹터z_score()
+                locals()['ir_data_{}{}{}'.format(i,j,z)] = 2*(np.mean(locals()['aaa_{}{}{}'.format(i,j,z)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}'.format(i,j,z)][1]-kospi_quarter['RET'],axis=1)
+                b=return_calculator(locals()['aaa_{}{}{}'.format(i,j,z)][1],locals()['aaa_{}{}{}'.format(i,j,z)][2],kospi_quarter,kospi_month)
+                b.rolling_12month_return_3factor(i,j,z)
 
 #factor 4개 랜덤하게 골라서 성과 측정
 for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
@@ -153,6 +179,20 @@ for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
                     if i<j<z<p<k:
                         a=factor_5_mid(raw_data,rebalancing_date,month_date,wics_mid,i,j,z,p,k)
                         locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)] =a.factor_5_mid()
+                        locals()['ir_data_{}{}{}{}{}'.format(i,j,z,p,k)] = 2*(np.mean(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1]-kospi_quarter['RET'],axis=1)
+                        b=return_calculator(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1],locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][2],kospi_quarter,kospi_month)
+                        b.rolling_12month_return_5factor(i,j,z,p,k)
+                        
+                        
+#factor 5개 랜덤하게 골라서 성과 측정 _ 이상치 스무딩
+for i in range(32,34):  #per나 pbr은 꼭 들어가야해..
+    for j in range(first_column,final_column+1):
+        for z in range(first_column,final_column+1):
+            for p in range(first_column,final_column+1):
+                for k in range(first_column,final_column+1):
+                    if i<j<z<p<k:
+                        a=factor_5_mid_adoutlier(raw_data,rebalancing_date,month_date,wics_mid,i,j,z,p,k)
+                        locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)] =a.factor_5_mid_adoutlier()
                         locals()['ir_data_{}{}{}{}{}'.format(i,j,z,p,k)] = 2*(np.mean(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1],axis=1)-np.mean(kospi_quarter['RET']))/np.std(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1]-kospi_quarter['RET'],axis=1)
                         b=return_calculator(locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][1],locals()['aaa_{}{}{}{}{}'.format(i,j,z,p,k)][2],kospi_quarter,kospi_month)
                         b.rolling_12month_return_5factor(i,j,z,p,k)
